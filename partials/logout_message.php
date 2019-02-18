@@ -3,8 +3,10 @@
    <div class="col-12 offset-lg-4 col-lg-4 text-center card">
         
         <h2>Thank you!<br/>Your order will be soon on its way!</h2>
-        <p>Would you like to continue shopping?</p>
-        <button type="button"><a href="index.php">Yes, please!</a></button>
+        
+        <p>You will be redirected to the Home page in 5 sec</p>
+        
+        <?php header ('refresh:5;url=index.php'); ?>
        
    </div>
      

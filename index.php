@@ -3,7 +3,7 @@
 //Starting session 
 session_start();
 
-//Neccesary HTML elemnts including <head> and all meta nd links information
+//Neccesary HTML elemnts including <head> and all meta and links information
 
 require 'partials/head.php';
 
@@ -48,63 +48,36 @@ require 'partials/head.php';
                 } else {
                     echo "<p>Welcome to your one stop dinosaur shop!</p>";
                 }
-
-
+                
+                //Welcome message for logged in user
+        
+                if (isset($_SESSION["username"])){?>
+        
+                    <p>Hej <?= $_SESSION["username"];?>, you are now logged in!</p>
+        
+                <?php 
+            
+                } 
+                
                 ?>
         
             </div>
         
         </div>
         
-        <form action="checkout.php" method="POST" class="row">
+       <form action="views/order_handling.php" method="POST" class="row">
            
             <div class="col-12">
 
                 <div class="row justify-content-around product_window">
 
-                    <!--Including product cards inside the form to collect the qunatity input-->
+                    <!--Including product cards inside the form to collect the quantity input-->
+                    
                     <?php 
                     
                     include 'partials/product_card.php'; 
             
                     ?>
-
-                </div>
-
-                <div class="row justify-content-center form_card">
-                    
-                    <!--Offset used to locate the form card in the center-->
-
-                    <div class="card col-12 col-md-6 offset-lg-4 col-lg-4">
-                        
-                        <label for="name"></label>
-                        <input id="name" name="name" type="text" placeholder="First Name Second Name">
-                        <br />
-
-                        <label for="address"></label>
-                        <input id="address" name="address" type="text" placeholder="Street Address">
-                        <br />
-
-                        <label for="city"></label>
-                        <input id="city" name="city" type="text" placeholder="City">
-                        <br />
-
-                        <label for="postcode"></label>
-                        <input id="postcode" name="postcode" type="text" placeholder="Postcode">
-                        <br />
-
-                        <label for="telephone"></label>
-                        <input id="telephone" name="telephone" type="tel" placeholder="Telephone">
-                        <br />
-
-                        <label for="email"></label>
-                        <input id="email" name="email" type="text" placeholder="E-mail: username@mail.com">
-                        <br />
-
-                        <input type="submit" value="Submit">
-                        <br />
-
-                    </div>
 
                 </div>
                 

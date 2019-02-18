@@ -33,6 +33,18 @@ i {
     padding-right: 0.1em;
 }
 
+.error {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.5em;
+    color: red;
+}
+
+.notice {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.5em;
+    color: green;
+}
+
 body {
     margin: 2rem 0 0 0;
 }
@@ -51,20 +63,20 @@ body {
     height: auto;
 }
 
-header .green_nav .product_window .form_card {
-    max-width: 900px;
+header , .green_nav {
+    width: 100%;
 }
 
 .qty_input {
     margin: 0 1em;
-    width: 60px;
+    width: 40px;
 }
 
-.form_card .order_card {
-    margin-bottom: 4em;
+.bttn {
+    width: 80px;
 }
 
-.order_card {
+.form_card , .order_card {
     margin-bottom: 4em;
 }
 

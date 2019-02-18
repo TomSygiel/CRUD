@@ -24,73 +24,53 @@ require 'partials/head.php';
             
                  <?php
             
-                //Defining all all of the $_SESSION variables
-
-                $_SESSION["name"] = $_POST["name"];
-                $_SESSION["address"] = $_POST["address"];
-                $_SESSION["city"] = $_POST["city"];
-                $_SESSION["postcode"] = $_POST["postcode"];
-                $_SESSION["telephone"] = $_POST["telephone"];
-                $_SESSION["email"] = $_POST["email"];
-                
-                    
-                //Form details collection and error handling
-                //If empty, error message prompts to complete the form with missing information
+                    include 'partials/db_connection.php';
             
-                if (empty($_SESSION["name"])) {
-                    echo "* Full name required!";
-                } else {
-                    echo $_SESSION["name"];
-                }
+                    $statement = $pdo->prepare("SELECT name, address, city, postcode, telephone, email FROM user_info WHERE username = :username");
+            
+                    //Kepping user aware of their login session still running
+            
+                    if (isset($_SESSION["username"])) { ?>
+
+                        <h5>Hej <?= $_SESSION["username"];?>, please review your delivery details and your order!</h5>
+
+                        <br/>
+
+                    <?php
+
+                        $statement->execute(
+                        [
+                        ":username" => $_SESSION["username"]
+                        ]
+
+                        );
+
+                        $user_info = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+                        //var_dump($user_info);
+
+                        foreach ($user_info as $user) { ?>
+
+                           <p><?= $user["name"]; ?></p>
+                           <p><?= $user["address"]; ?></p>
+                           <p><?= $user["city"]; ?></p>
+                           <p><?= $user["postcode"]; ?></p>
+                           <p><?= $user["telephone"]; ?></p>
+                           <p><?= $user["email"]; ?></p>
+                    
+                    <?php 
                 
-                echo "<br/>";
+                    }
+                
+                    } else {
 
-                if (empty($_SESSION["address"])) {
-                    echo "*Address required!";
-                } else {
-                    echo $_SESSION["address"];    
-                } 
+                        echo " Currently you are not logged in! ";
+                    }
 
-                echo "<br/>";
-
-                if (empty($_SESSION["city"])) {
-                    echo "*City required!";
-                } else {
-                    echo $_SESSION["city"]; 
-                } 
-
-                echo "<br/>";
-
-                if (empty($_SESSION["postcode"])) {
-                    echo "* Postcode required!";
-                } else {
-                    echo $_SESSION["postcode"]; 
-                } 
-
-                echo "<br/>";
-
-                if (empty($_SESSION["telephone"])) {
-                    echo "* Telephone number required!";
-                } else {
-                    echo $_SESSION["telephone"]; 
-                } 
-
-                echo "<br/>";
-
-                if (empty($_SESSION["email"])) {
-                    echo "* E-mail required!";
-                } else {
-                    echo "Order confirmation will be sent to: " . $_SESSION["email"]; 
-                } 
-
-                echo "<br/>";
-
-                echo "<h4><strong>Thank you for your order!</strong></h4>";
-
-                echo "<br/>";
-
-                ?>
-
+                    ?>
+                    
+            <br/>
+            
         </div>
 
 
@@ -100,61 +80,77 @@ require 'partials/head.php';
 
                 <?php
             
-                include 'partials/array.php';
+                //Outputting information from selected_product table in database in an array
+            
+                $statement = $pdo->prepare("SELECT * FROM selected_product JOIN user_info WHERE selected_product.username = user_info.username");
+            
+                $statement->execute();
+            
+                $selected_product = $statement->fetchAll(PDO::FETCH_ASSOC);
             
                 //Variable dump for debugging
             
-                //var_dump($_POST);
+                //var_dump($selected_product);
             
                 $sum = 0;
             
                 //Product checkout 
             
-                foreach($all_toys as $index => $single_toy) {
-            
-                    if(!empty($_POST["amount"][$index]) && isset($_POST["amount"][$index]) > 0) {
-
-                        echo $single_toy["product_name"]. " figurine: ";
-                        echo $_POST["amount"][$index] . " unit/s at ";
+                foreach ($selected_product as $product) {
+                     
+                    echo $product["product_name"]. " figurine: ";
+                    echo $product["amount"] . " unit/s at ";
                         
-                        if (date("l") == "Friday" && $single_toy["price"] > 200) {
-                            $total_price = ($single_toy["price"] * $_POST["amount"][$index]) - 20;
-                            echo "Price includes 20 SEK discount!";
+                        if (date("l") == "Friday" && $product["price"] > 200) {
+                            
+                            $total_price = ($product["price"] * $product["amount"]) - 20;
+                            echo " (Price includes 20 SEK discount!) ";
                             
                         } else {
-                            $total_price = $single_toy["price"] * $_POST["amount"][$index];
+                            
+                            $total_price = $product["price"] * $product["amount"];
                         }
-                            echo $total_price . " SEK!</p>";
+                            echo $total_price . " SEK!</p>"; ?>
+                            
+                            <div>
+                            
+                                <a href="views/add_to_order.php?product_name=<?= $product["product_name"];?>"><i class="fa fa-plus-square" style="font-size:24px;color: gray"></i></a> 
 
-                        $sum += ((int)$single_toy["price"] * (int)$_POST["amount"][$index]);
-                        
-                        echo "<br/>";
-                        
-                    }//Product checkout end
+                                <a href="views/remove_order.php?product_name=<?= $product["product_name"];?>"><i class="fa fa-minus-square" style="font-size:24px;color: gray"></i></a> 
 
-                }
+                                <a href="views/cancel.php?product_name=<?= $product["product_name"];?>"><i class="fa fa-trash" style="font-size:24px;color:gray"></i></a>
+                            
+                            </div>
+                            
+                        <?php
+
+                        $sum += ((int)$product["price"] * (int)$product["amount"]);
+                        
+                        echo "<br/>"; 
+                    
+                } //Product checkout end
             
-            echo "<br/>";
+                echo "<br/>";
             
-            if (date("l") == "Monday") {
-                $sum = ($sum * 0.5);
-                echo "<h5><strong>Monday's 50% discount: " . $sum . " SEK!</strong></h5><br/>";
-                echo "<h4>Happy Monday!</h4><br/>";
+                    if (date("l") == "Monday") {
+                        $sum = ($sum * 0.5);
+                        echo "<h5><strong>Monday's 50% discount: " . $sum . " SEK!</strong></h5><br/>";
+                        echo "<h4>Happy Monday!</h4><br/>";
                 
-            } elseif (date("l") == "Wednesday") {
-                $sum = ($sum * 1.1);
-                echo "<h5><strong>Your total includes 10% more: " . $sum . " SEK!</strong></h5><br/>";
-                echo "<h4>Thank you for supporting our Children's Hospital Toys Donation program!<h4><br/>";
-                
-            } else {
-                echo "<h5><strong>Your Total is: " . $sum . " SEK</strong><h5>";
-            }
+                    } elseif (date("l") == "Wednesday") {
+                        $sum = ($sum * 1.1);
+                        echo "<h5><strong>Your total includes 10% more: " . $sum . " SEK!</strong></h5><br/>";
+                        echo "<h4>Thank you for supporting our Children's Hospital Toys Donation program!<h4><br/>";
+
+                    } else {
+                        echo "<h5><strong>Your Total is: " . $sum . " SEK</strong><h5>";
+                    }
             
-            echo "<br/>";
+                echo "<br/>";
             
-            ?>
+                ?>
             
-            <h5>Complete your order by login out <button class="Log_out"><a href="logout.php">Log out!</a></button></h5>
+            <h5>Complete your order here <button class="Log_out"><a href="logout.php">Order!</a></button></h5>
 
         </div>
 
